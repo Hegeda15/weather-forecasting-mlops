@@ -69,6 +69,8 @@ def fetch_and_push_weather():
     }
 
     df = pd.DataFrame(data=hourly_data)
+    now_utc = pd.Timestamp.now(tz="UTC")
+    df = df[df["timestamp"] <= now_utc]
 
     # 5. Duplikációk kiszűrése (a legfrissebb meglévő timestamp lekérdezése)
     try:
@@ -77,7 +79,6 @@ def fetch_and_push_weather():
 
         if max_time is not None:
             max_time = pd.to_datetime(max_time, utc=True)
-            # Csak azokat a sorokat tartjuk meg, amelyek újabbak a már eltárolt legfrissebb adatnál
             df = df[df["timestamp"] > max_time]
     except Exception as e:
         print(f"⚠️ Nem sikerült a lekérdezés az adatbázisból (pl. ha üres még a tábla): {e}")
