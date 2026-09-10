@@ -62,7 +62,7 @@ def fetch_and_push_weather():
         "surface_pressure": hourly.Variables(3).ValuesAsNumpy(),
         "precipitation": hourly.Variables(4).ValuesAsNumpy(),
         "wind_speed_10m": hourly.Variables(5).ValuesAsNumpy(),
-        "wind_direction_10m": hourly.Variables(6).ValuesAsNumpy(),
+        "wind_direction_10m": hourly.Variables(6).Variables if hasattr(hourly.Variables(6), 'Variables') else hourly.Variables(6).ValuesAsNumpy(),
         "apparent_temperature": hourly.Variables(7).ValuesAsNumpy(),
         "cloud_cover": hourly.Variables(8).ValuesAsNumpy(),
         "wind_gusts_10m": hourly.Variables(9).ValuesAsNumpy(),
@@ -70,9 +70,24 @@ def fetch_and_push_weather():
 
     df = pd.DataFrame(data=hourly_data)
 
-    # 5. Adatbázisba írás
-    df.to_sql("weather_logs", engine, if_exists="append", index=False, method="multi")
-    print(f"✅ Sikeresen elmentve {len(df)} sor a Supabase adatbázisba!")
+    # 5. Duplikációk kiszűrése (a legfrissebb meglévő timestamp lekérdezése)
+    try:
+        max_time_query = "SELECT MAX(timestamp) FROM weather_logs;"
+        max_time = pd.read_sql(max_time_query, con=engine).iloc[0, 0]
+
+        if max_time is not None:
+            max_time = pd.to_datetime(max_time, utc=True)
+            # Csak azokat a sorokat tartjuk meg, amelyek újabbak a már eltárolt legfrissebb adatnál
+            df = df[df["timestamp"] > max_time]
+    except Exception as e:
+        print(f"⚠️ Nem sikerült a lekérdezés az adatbázisból (pl. ha üres még a tábla): {e}")
+
+    # 6. Adatbázisba írás (csak ha maradt új sor)
+    if not df.empty:
+        df.to_sql("weather_logs", engine, if_exists="append", index=False, method="multi")
+        print(f"✅ Sikeresen elmentve {len(df)} új sor a Supabase adatbázisba!")
+    else:
+        print("ℹ️ Nincsenek új mentendő adatok (minden rekord szerepel már az adatbázisban).")
 
 if __name__ == "__main__":
     fetch_and_push_weather()
