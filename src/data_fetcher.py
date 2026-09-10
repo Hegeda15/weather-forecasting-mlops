@@ -60,16 +60,13 @@ def fetch_and_push_weather():
         "relative_humidity_2m": hourly.Variables(1).ValuesAsNumpy(),
         "rain": hourly.Variables(2).ValuesAsNumpy(),
         "surface_pressure": hourly.Variables(3).ValuesAsNumpy(),
-        "precipitation": hourly.Variables(4).Variables(4).ValuesAsNumpy() if hasattr(hourly.Variables(4), 'ValuesAsNumpy') else hourly.Variables(4).ValuesAsNumpy(),
+        "precipitation": hourly.Variables(4).ValuesAsNumpy(),
         "wind_speed_10m": hourly.Variables(5).ValuesAsNumpy(),
         "wind_direction_10m": hourly.Variables(6).ValuesAsNumpy(),
         "apparent_temperature": hourly.Variables(7).ValuesAsNumpy(),
         "cloud_cover": hourly.Variables(8).ValuesAsNumpy(),
         "wind_gusts_10m": hourly.Variables(9).ValuesAsNumpy(),
     }
-
-    # Egyszerűsített beolvasás
-    hourly_data["precipitation"] = hourly.Variables(4).ValuesAsNumpy()
 
     df = pd.DataFrame(data=hourly_data)
 
