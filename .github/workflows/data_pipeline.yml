@@ -2,13 +2,13 @@ name: Weather Data Ingestion Pipeline
 
 on:
   schedule:
-    # Minden nap éjfélkor fut le automatikusan
     - cron: '0 0 * * *'
-  # Lehetővé teszi a kézi indítást is a GitHub felületén
   workflow_dispatch:
+  push:
+    branches: [ "main" ]
 
 jobs:
-  fetch-weather-data:
+  build:
     runs-on: ubuntu-latest
 
     steps:
