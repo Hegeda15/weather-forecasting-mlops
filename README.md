@@ -7,7 +7,7 @@
 
 An end-to-end Machine Learning system that automatically ingests real-time weather data, engineers time-series features, retrains predictive models, and serves forecasts via an interactive dashboard and API.
 
-🔗 **Live Demo:** [Streamlit Web App](https://your-app-name.streamlit.app) | [FastAPI Endpoint](https://your-api-url.com/docs)
+
 
 ---
 
