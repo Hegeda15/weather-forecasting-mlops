@@ -20,7 +20,7 @@ Traditional machine learning projects often stop at static Jupyter Notebooks. Th
 * **Feature Engineering:** Circular time encoding (sine/cosine transformations), lagged variables (1h, 3h, 24h), and rolling statistics.
 * **Automated Model Training:** Continuous evaluation of gradient-boosted trees (XGBoost) against baseline models using time-series cross-validation (`TimeSeriesSplit`).
 * **CI/CD Orchestration:** GitHub Actions workflow executing data ingestion, validation, and model updates automatically.
-* **Interactive Dashboard:** Live visualization built with Streamlit showing predicted vs. actual values and model explainability (SHAP).
+
 
 ---
 
