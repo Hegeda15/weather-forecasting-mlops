@@ -7,20 +7,19 @@ from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
 def fetch_and_push_weather():
-    # 1. Környezeti változó beolvasása (.env-ből vagy GitHub Secrets-ből)
     load_dotenv()
     raw_db_url = os.getenv("SUPABASE_DB_URL")
 
     if not raw_db_url:
         raise ValueError("A SUPABASE_DB_URL hiányzik a környezeti változók közül!")
 
-    # 2. Database Engine létrehozása
+    
     engine = create_engine(
         raw_db_url,
         connect_args={"prepare_threshold": None}
     )
 
-    # 3. API lekérés beállítása
+   
     cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
     retry_session = retry(cache_session, retries=5, backoff_factor=0.2)
     openmeteo = openmeteo_requests.Client(session=retry_session)
@@ -46,7 +45,7 @@ def fetch_and_push_weather():
     responses = openmeteo.weather_api(url, params=params)
     response = responses[0]
 
-    # 4. Adatok átalakítása DataFrame-mé
+    
     hourly = response.Hourly()
     
     hourly_data = {
@@ -72,7 +71,7 @@ def fetch_and_push_weather():
     now_utc = pd.Timestamp.now(tz="UTC")
     df = df[df["timestamp"] <= now_utc]
 
-    # 5. Duplikációk kiszűrése (a legfrissebb meglévő timestamp lekérdezése)
+   
     try:
         max_time_query = "SELECT MAX(timestamp) FROM weather_logs;"
         max_time = pd.read_sql(max_time_query, con=engine).iloc[0, 0]
@@ -83,7 +82,7 @@ def fetch_and_push_weather():
     except Exception as e:
         print(f"⚠️ Nem sikerült a lekérdezés az adatbázisból (pl. ha üres még a tábla): {e}")
 
-    # 6. Adatbázisba írás (csak ha maradt új sor)
+  
     if not df.empty:
         df.to_sql("weather_logs", engine, if_exists="append", index=False, method="multi")
         print(f"✅ Sikeresen elmentve {len(df)} új sor a Supabase adatbázisba!")
